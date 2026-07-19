@@ -10,9 +10,7 @@ var BLACKLIST = [
   'silvestre dangond','kanye west','elena rose','blessd','alvaro diaz',
   'alvaro díaz','álvaro díaz','tito rojas','aria vegas','jay wheeler',
   'jhayco','justin quiles','kapo','dei v','peso pluma','tan bionica',
-  'tan biónica','taylor swift','sabrina carpenter','chappell roan','troye sivan',
-  'dua lipa','rauw alejandro','shakira','doja cat','billie eilish',
-  'j balvin','paulo londra','tame impala','j-hope'
+  'tan biónica','doja cat','billie eilish','j balvin',
 ];
 function inBlacklist(name) {
   var n = String(name || '').toLowerCase().trim();
@@ -26,7 +24,7 @@ var CURATED_ARTISTS = [
   'Harry Styles','Clairo','Ross Lynch','FINNEAS','Michael Jackson',
   'Måneskin','Cigarettes After Sex','Sufjan Stevens','Conan Gray',
   'Stephen Sanchez','Ricky Montgomery','Daniel Caesar','Lyn Lapid',
-  'SHINee','The 1975','Milo J','keshi','Jósean Log','Dhruv','Rex Orange County'
+  'The 1975','Milo J','keshi','Jósean Log','Dhruv','Rex Orange County'
 ];
 
 // Artistas destacados (grid pequeño).
@@ -51,7 +49,9 @@ var CURATED_ALBUMS = [
   { artist: 'keshi', title: 'Gabriel' },
   { artist: 'SZA', title: 'SOS' },
   { artist: 'Rex Orange County', title: 'Pony' },
-  { artist: 'The Weeknd', title: 'After Hours' }
+  { artist: 'The Weeknd', title: 'After Hours' },
+  { artist: 'Måneskin', title: 'Rush!' },   
+  { artist: 'Milo J', title: 'I Wish I Were a Boy' }
 ];
 
 document.addEventListener('DOMContentLoaded', function () {
