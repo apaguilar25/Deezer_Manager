@@ -91,7 +91,6 @@ code {
 .btn:active { transform: translateY(0); }
 .btn[disabled] { opacity: 0.6; cursor: wait; }
 
-/* Botón con gradiente: texto en neón claro (nunca negro chocante). */
 .btn-primary,
 .btn-neon {
   background: var(--grad-brand);
@@ -209,7 +208,7 @@ code {
 }
 .icon-btn:hover { background: var(--surface-2); }
 
-/* Perfil (fixed dentro del header — el popover también fixed) */
+/* Perfil */
 .profile-btn {
   display: inline-flex; align-items: center; gap: 10px;
   background: var(--surface); border: 1px solid var(--border);
@@ -226,7 +225,7 @@ code {
 }
 
 .profile-popover {
-  position: fixed;    /* clave: sigue al header sin importar el scroll */
+  position: fixed;
   top: 70px; right: 16px;
   min-width: 240px;
   background: var(--surface);
@@ -356,7 +355,7 @@ code {
 .card-body p  { margin: 0; color: var(--muted); font-size: .8rem; }
 
 /* =====================================================
-   Marquee (carrusel infinito de tendencias)
+   Marquee
    ===================================================== */
 .marquee {
   position: relative;
@@ -370,14 +369,11 @@ code {
   animation: marquee 60s linear infinite;
   will-change: transform;
 }
-/* IMPORTANT: pausamos solo si el cursor está sobre el marquee.
-   Antes hover en la fila causaba glitch al salir por reflow;
-   ahora la animación no reinicia porque el estado se mantiene en la misma clase. */
 .marquee:hover .marquee-track { animation-play-state: paused; }
 .marquee .card { flex: 0 0 200px; width: 200px; }
 @keyframes marquee {
   from { transform: translateX(0); }
-  to   { transform: translateX(-50%); } /* duplicamos contenido → loop perfecto */
+  to   { transform: translateX(-50%); }
 }
 
 /* =====================================================
@@ -428,6 +424,58 @@ code {
 }
 .star.on { color: #ffce4a; }
 
+/* =========================================
+   COMPONENTE: FILTRO DE ESTRELLAS
+   ========================================= */
+.star-filter {
+  position: relative;
+  display: inline-block;
+}
+
+.star-filter .filter-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.star-filter .dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  list-style: none;
+  padding: 0.5rem 0;
+  margin: 0.5rem 0 0 0;
+  min-width: 140px;
+  z-index: 100;
+  box-shadow: var(--shadow-card);
+}
+
+.star-filter .dropdown-menu[hidden] {
+  display: none;
+}
+
+.star-filter .dropdown-item {
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  color: var(--text-dim);
+  transition: all 0.2s ease;
+}
+
+.star-filter .dropdown-item:hover {
+  background-color: var(--surface-2);
+  color: var(--text);
+}
+
+.star-filter .dropdown-item.active {
+  color: var(--brand-1);
+  font-weight: bold;
+  background-color: rgba(34,211,238,0.1);
+}
+
 /* =====================================================
    Responsive
    ===================================================== */
@@ -439,7 +487,6 @@ code {
   .home-search .btn { width: 100%; border-radius: 12px; }
   .brand { font-size: .95rem; }
 
-  /* --- CORRECCIÓN PARA CUADRÍCULAS EN MÓVILES --- */
   .grid {
     grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
     gap: 12px; 

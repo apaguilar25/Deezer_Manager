@@ -64,12 +64,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function renderFilter() {
     filterEl.innerHTML = buildFilterHtml(currentFilter);
-    filterEl.querySelectorAll('[data-filter]').forEach(function (b) {
-      b.addEventListener('click', function () {
-        currentFilter = parseInt(b.getAttribute('data-filter'), 10);
+    var menu = filterEl.querySelector('.dropdown-menu');
+    
+    // Toggle del menú
+    filterEl.querySelector('.filter-toggle').addEventListener('click', function(e) {
+      e.stopPropagation();
+      menu.hidden = !menu.hidden;
+    });
+
+    // Acción de selección
+    filterEl.querySelectorAll('.dropdown-item').forEach(function(item) {
+      item.addEventListener('click', function() {
+        currentFilter = parseInt(item.getAttribute('data-val'), 10);
         renderFilter();
         render();
       });
+    });
+
+    // Cerrar al hacer clic fuera
+    document.addEventListener('click', function(e) {
+      if (!filterEl.contains(e.target)) menu.hidden = true;
     });
   }
 
@@ -151,8 +165,18 @@ document.addEventListener('DOMContentLoaded', function () {
       { v: 1,  label: '1★' },
       { v: -1, label: 'Sin calificar' }
     ];
-    return opts.map(function (o) {
-      return '<button type="button" class="chip' + (o.v === active ? ' active' : '') + '" data-filter="' + o.v + '">' + o.label + '</button>';
-    }).join('');
+    var activeOpt = opts.find(function(o) { return o.v === active; });
+    var btnText = active === 0 ? 'Filtrar' : 'Filtro: ' + activeOpt.label;
+
+    var html = '<div class="star-filter">' +
+      '<button type="button" class="btn btn-ghost filter-toggle">' + btnText + ' ▼</button>' +
+      '<ul class="dropdown-menu" hidden>';
+    
+    opts.forEach(function(o) {
+      var activeClass = o.v === active ? ' active' : '';
+      html += '<li class="dropdown-item' + activeClass + '" data-val="' + o.v + '">' + o.label + '</li>';
+    });
+    html += '</ul></div>';
+    return html;
   }
 });
