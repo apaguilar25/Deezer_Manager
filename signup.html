@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crear cuenta · Deezer.Music</title>
+  <meta name="description" content="Crea tu cuenta en Deezer.Music y personaliza tu experiencia musical." />
+  <link rel="stylesheet" href="./css/styles.css" />
+</head>
+<body class="auth-page">
+  <main class="auth-shell">
+    <section class="auth-card">
+      <div class="auth-brand" id="authBrand"></div>
+      <h1 class="auth-title">CREAR CUENTA</h1>
+      <p class="auth-sub">Elige tu identidad en la comunidad.</p>
+
+      <form id="signupForm" class="auth-form" novalidate>
+        <label class="field">
+          <span>Nombre de usuario</span>
+          <input id="username" type="text" autocomplete="username" required />
+          <small class="hint">Se usa para iniciar sesión.</small>
+        </label>
+        <label class="field">
+          <span>Apodo</span>
+          <input id="nickname" type="text" required />
+          <small class="hint">Cómo te mostraremos en la app.</small>
+        </label>
+        <label class="field">
+          <span>Contraseña</span>
+          <input id="pass" type="password" autocomplete="new-password" required />
+        </label>
+        <label class="field">
+          <span>Confirmar contraseña</span>
+          <input id="pass2" type="password" autocomplete="new-password" required />
+        </label>
+
+        <div id="signupError" class="alert error" hidden></div>
+        <div id="signupOk" class="alert ok" hidden></div>
+
+        <button id="signupBtn" type="submit" class="btn btn-primary btn-neon">
+          <span class="spinner" hidden></span>
+          <span class="btn-label">Crear cuenta</span>
+        </button>
+      </form>
+
+      <div class="auth-links">
+        <a href="./login.html">Ya tengo cuenta</a>
+      </div>
+    </section>
+  </main>
+
+  <script src="./js/icons.js"></script>
+  <script src="./js/theme.js"></script>
+  <script src="./js/auth.js"></script>
+  <script src="./js/storage.js"></script>
+  <script src="./js/offline.js"></script>
+  <script src="./js/signup.js"></script>
+  <script>
+    document.getElementById('authBrand').innerHTML =
+      Icons.logo('icon icon-lg neon') + '<span class="auth-wordmark">DEEZER<span class="brand-accent">.MUSIC</span></span>';
+  </script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Buscar · Deezer.Music</title>
+  <meta name="description" content="Busca artistas, álbumes y canciones en Deezer.Music en tiempo real." />
+  <link rel="stylesheet" href="./css/styles.css" />
+</head>
+<body class="app-page">
+  <header class="topbar"></header>
+
+  <main class="app-main">
+    <div id="netStatus" class="net-pill online">En línea</div>
+
+    <button id="backBtn" class="btn btn-ghost back-btn" type="button"></button>
+
+    <section class="section">
+      <div class="section-head"><h2>Explorar</h2></div>
+      <form id="searchForm" class="home-search" role="search">
+        <input id="searchInput" type="search"
+               placeholder="Escribe: Taylor Swift, Coldplay, Karol G..." autocomplete="off" />
+        <button type="submit" class="btn btn-primary btn-neon">Buscar</button>
+      </form>
+      <div id="searchHistory" class="chip-row" hidden></div>
+      <p id="searchStatus" class="muted"></p>
+    </section>
+
+    <section class="section" id="secArtists" hidden>
+      <div class="section-head"><h2>Artistas</h2></div>
+      <div id="artistResults" class="grid"></div>
+    </section>
+
+    <section class="section" id="secAlbums" hidden>
+      <div class="section-head"><h2>Álbumes</h2></div>
+      <div id="albumResults" class="grid"></div>
+    </section>
+
+    <section class="section" id="secTracks" hidden>
+      <div class="section-head"><h2>Canciones</h2></div>
+      <div id="trackResults" class="track-list"></div>
+    </section>
+  </main>
+
+  <script src="./js/icons.js"></script>
+  <script src="./js/theme.js"></script>
+  <script src="./js/auth.js"></script>
+  <script src="./js/storage.js"></script>
+  <script src="./js/offline.js"></script>
+  <script src="./js/api.js"></script>
+  <script src="./js/ui.js"></script>
+  <script src="./js/search.js"></script>
+</body>
+</html>
