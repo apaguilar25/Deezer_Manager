@@ -483,9 +483,16 @@ code {
 @media (max-width: 640px) {
   .profile-btn span:not(.profile-avatar) { display: none; }
   .auth-title { font-size: 1.3rem; }
-  .home-search { border-radius: 18px; padding: 8px; }
-  .home-search form { flex-wrap: wrap; }
-  .home-search .btn { width: 100%; border-radius: 12px; }
+  
+  /* Ajuste para el buscador: el botón queda como icono */
+  .home-search { border-radius: 18px; padding: 6px; }
+  .home-search .btn { 
+    width: 44px;    /* Ancho fijo para que sea cuadrado */
+    padding: 0;     /* Quitamos padding lateral */
+    font-size: 0;   /* Oculta el texto "BUSCAR" */
+  }
+  
+  .home-search form { flex-wrap: nowrap; gap: 4px; }
   .brand { font-size: .95rem; }
 
   .grid {
