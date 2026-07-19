@@ -158,11 +158,11 @@ document.addEventListener('DOMContentLoaded', function () {
   function buildFilterHtml(active) {
     var opts = [
       { v: 0,  label: 'Todos' },
-      { v: 5,  label: '5★' },
-      { v: 4,  label: '4★' },
-      { v: 3,  label: '3★' },
-      { v: 2,  label: '2★' },
-      { v: 1,  label: '1★' },
+      { v: 5,  label: '5 ★' },
+      { v: 4,  label: '4 ★' },
+      { v: 3,  label: '3 ★' },
+      { v: 2,  label: '2 ★' },
+      { v: 1,  label: '1 ★' },
       { v: -1, label: 'Sin calificar' }
     ];
     var activeOpt = opts.find(function(o) { return o.v === active; });

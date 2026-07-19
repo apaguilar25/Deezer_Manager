@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!list.length) {
       filterEl.innerHTML = '';
       grid.innerHTML = '';
-      status.innerHTML = 'Aún no has guardado álbumes. Explora <a href="./home.html">tu inicio</a> y toca el corazón.';
+      status.innerHTML = 'Aún no has guardado álbumes. Explora <a href="./home.html">tu inicio</a>, selecciona tu album favorito y toca el corazón.';
       return;
     }
     
