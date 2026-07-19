@@ -486,19 +486,22 @@ code {
   
   .home-search { border-radius: 18px; padding: 6px; }
   
-  .home-search .btn { 
+  /* Aquí encadenamos las clases para ganar prioridad sin !important */
+  .home-search .btn.btn-primary.btn-neon { 
     width: 44px;
     height: 44px;
-    padding: 0 !important;
+    padding: 0;
     font-size: 0;
+    line-height: 0;
     color: transparent;
+    text-shadow: none; 
     display: flex;
     justify-content: center;
     align-items: center;
     flex-shrink: 0;
   }
 
-  .home-search .btn::after {
+  .home-search .btn.btn-primary.btn-neon::after {
     content: "";
     display: block;
     width: 20px;
