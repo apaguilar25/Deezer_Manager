@@ -315,6 +315,10 @@ code {
   flex: 1; min-width: 0;
   background: transparent; border: none; outline: none; color: var(--text);
   padding: 10px 12px; font-size: .95rem;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .home-search .search-glyph {
   display: inline-flex; margin-left: 8px; color: var(--brand-1);
