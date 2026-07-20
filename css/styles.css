@@ -560,3 +560,12 @@ code {
   .track-row { flex-wrap: wrap; }
   .track-row audio { max-width: 100%; order: 1; flex: 1 0 100%; }
 }
+
+#app-main-title,
+#app-sidebar-title {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+}
