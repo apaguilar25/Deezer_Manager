@@ -63,6 +63,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var el = document.createElement('div');
     el.className = 'album-card';
     var artistId = (al.artist && al.artist.id) || '';
+    var artistName = (al.artist && al.artist.name) || '';
     var rating = Store.getRating(String(al.id));
     el.innerHTML =
       '<img src="' + (al.cover || '') + '" alt="' + esc(al.title) + '" />' +
@@ -76,7 +77,18 @@ document.addEventListener('DOMContentLoaded', function () {
         '<div class="stars" style="margin-top:8px">' + starsHtml(rating) + '</div>' +
       '</div>';
 
-    el.querySelector('.fav-btn').addEventListener('click', function () {
+    // Ir al detalle del álbum (canciones) al hacer click en la tarjeta,
+    // excepto si el click fue sobre el corazón, las estrellas o "Ver artista".
+    el.addEventListener('click', function (e) {
+      if (e.target.closest('.fav-btn') || e.target.closest('.stars') || e.target.closest('.chip')) return;
+      window.location.href = './album.html?id=' + encodeURIComponent(al.id) +
+        '&artistId=' + encodeURIComponent(artistId) +
+        '&artistName=' + encodeURIComponent(artistName) +
+        '&from=favorites';
+    });
+
+    el.querySelector('.fav-btn').addEventListener('click', function (e) {
+      e.stopPropagation();
       Store.removeFavorite(al.id);
       render();
     });
@@ -87,7 +99,8 @@ document.addEventListener('DOMContentLoaded', function () {
   function bindStars(el, al) {
     var stars = el.querySelectorAll('.star');
     stars.forEach(function (s, i) {
-      s.addEventListener('click', function () {
+      s.addEventListener('click', function (e) {
+        e.stopPropagation();
         var current = Store.getRating(String(al.id));
         var next = current === (i + 1) ? 0 : (i + 1);
         Store.setRating(String(al.id), next);

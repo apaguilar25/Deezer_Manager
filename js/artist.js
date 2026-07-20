@@ -106,6 +106,16 @@ document.addEventListener('DOMContentLoaded', function () {
         '</div>' +
       '</div>';
 
+    // Ir al detalle del álbum (canciones) al hacer click en la tarjeta,
+    // excepto si el click fue sobre el corazón o las estrellas.
+    card.addEventListener('click', function (e) {
+      if (e.target.closest('.fav-btn') || e.target.closest('.stars')) return;
+      window.location.href = './album.html?id=' + encodeURIComponent(al.id) +
+        '&artistId=' + encodeURIComponent(artistId) +
+        '&artistName=' + encodeURIComponent(artistName || '') +
+        '&from=artist';
+    });
+
     var fav = card.querySelector('.fav-btn');
     fav.addEventListener('click', function () {
       var album = {

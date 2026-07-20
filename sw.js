@@ -1,7 +1,7 @@
 // Service worker mínimo: cachea el shell para permitir carga offline de la UI.
 // Las rutas se calculan a partir del scope del propio SW, así funciona
 // tanto en / (preview) como en /reponame/ (GitHub Pages) sin cambios.
-var CACHE = 'dm-shell-v2';
+var CACHE = 'dm-shell-v3';
 var BASE = new URL('./', self.registration.scope).href;
 var REL_ASSETS = [
   'login.html',
@@ -10,6 +10,7 @@ var REL_ASSETS = [
   'home.html',
   'search.html',
   'artist.html',
+  'album.html',
   'favorites.html',
   'css/styles.css',
   'js/icons.js',
@@ -25,6 +26,7 @@ var REL_ASSETS = [
   'js/forgot.js',
   'js/search.js',
   'js/artist.js',
+  'js/album.js',
   'js/favorites.js'
 ];
 var ASSETS = REL_ASSETS.map(function (p) { return new URL(p, BASE).href; });

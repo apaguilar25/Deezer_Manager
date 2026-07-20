@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mis álbumes · Deezer.Music</title>
-  <meta name="description" content="Tus álbumes guardados en Deezer.Music, siempre a un clic." />
+  <title>Álbum · Deezer.Music</title>
+  <meta name="description" content="Escucha las canciones del álbum en Deezer.Music." />
   <link rel="stylesheet" href="./css/styles.css" />
 </head>
 <body class="app-page">
@@ -12,14 +12,14 @@
 
   <main class="app-main">
     <button id="backBtn" class="btn btn-ghost back-btn" type="button"></button>
+    <div id="albumBanner" class="artist-banner album-hero"></div>
 
     <section class="section">
       <div class="section-head">
-        <h2>Mis álbumes</h2>
-        <div id="starFilter" class="star-filter"></div>
+        <h2>Canciones</h2>
       </div>
-      <p id="favStatus" class="muted"></p>
-      <div id="favGrid" class="grid album-grid"></div>
+      <p id="albumStatus" class="muted">Cargando canciones...</p>
+      <div id="trackList" class="track-list"></div>
     </section>
   </main>
 
@@ -30,6 +30,6 @@
   <script src="./js/offline.js"></script>
   <script src="./js/api.js"></script>
   <script src="./js/ui.js"></script>
-  <script src="./js/favorites.js"></script>
+  <script src="./js/album.js"></script>
 </body>
 </html>

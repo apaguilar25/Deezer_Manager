@@ -402,7 +402,14 @@ code {
   background: var(--surface); border: 1px solid var(--border);
   border-radius: var(--radius); overflow: hidden;
   display: flex; flex-direction: column;
+  cursor: pointer;
+  transition: transform .15s ease, border-color .15s, box-shadow .2s;
 }
+.album-card:hover {
+  transform: translateY(-3px); border-color: var(--brand-1);
+  box-shadow: 0 12px 30px -14px rgba(34,211,238,0.4);
+}
+
 .album-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
 .album-body { padding: 12px 14px; }
 .album-body h3 { margin: 0 0 4px; font-size: 1rem; }
@@ -478,6 +485,30 @@ code {
 }
 
 /* =====================================================
+   Álbum (detalle) — portada + canciones
+   ===================================================== */
+.album-hero .banner-info { display: flex; flex-direction: column; gap: 10px; }
+.album-hero-actions { display: flex; align-items: center; gap: 12px; margin-top: 4px; }
+.album-hero-actions .fav-btn { background: rgba(10,14,30,0.35); }
+
+.track-list { display: flex; flex-direction: column; gap: 10px; }
+.track-row {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 8px 14px;
+}
+.track-idx { width: 20px; text-align: center; color: var(--muted); font-size: .85rem; flex: none; }
+.track-row img { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; flex: none; background: var(--surface-2); }
+.track-info { flex: 1; min-width: 0; }
+.track-title { font-weight: 600; font-size: .92rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.track-sub { color: var(--muted); font-size: .8rem; }
+.track-dur { color: var(--muted); font-size: .85rem; flex: none; }
+.track-row audio {
+  height: 34px; max-width: 220px; flex: none; color-scheme: dark;
+}
+[data-theme="light"] .track-row audio { color-scheme: light; }
+
+/* =====================================================
    Responsive
    ===================================================== */
 @media (max-width: 640px) {
@@ -525,4 +556,7 @@ code {
   .card-body h3, .album-body h3 {
     font-size: .88rem;
   }
+
+  .track-row { flex-wrap: wrap; }
+  .track-row audio { max-width: 100%; order: 1; flex: 1 0 100%; }
 }
