@@ -222,7 +222,6 @@ code {
   background: var(--grad-brand); color: var(--accent-neon);
   font-size: .8rem; font-weight: 800;
   text-shadow: 0 0 6px rgba(217,255,245,.6);
-  line-height: 1; /* Añade esta línea para centrado vertical estricto */
 }
 
 .profile-popover {
@@ -316,10 +315,6 @@ code {
   flex: 1; min-width: 0;
   background: transparent; border: none; outline: none; color: var(--text);
   padding: 10px 12px; font-size: .95rem;
-
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 .home-search .search-glyph {
   display: inline-flex; margin-left: 8px; color: var(--brand-1);
@@ -520,11 +515,6 @@ code {
   .profile-btn span:not(.profile-avatar) { display: none; }
   .auth-title { font-size: 1.3rem; }
   
-  /* NUEVA REGLA: Igualar el padding para centrar el avatar */
-  .profile-btn {
-    padding: 6px; /* 6px en todos los lados en lugar de 12px a la derecha */
-  }
-
   .home-search { border-radius: 18px; padding: 6px; }
   
   /* Aquí encadenamos las clases para ganar prioridad sin !important */
@@ -540,7 +530,6 @@ code {
     justify-content: center;
     align-items: center;
     flex-shrink: 0;
-    gap: 0; 
   }
 
   .home-search .btn.btn-primary.btn-neon::after {
@@ -570,13 +559,4 @@ code {
 
   .track-row { flex-wrap: wrap; }
   .track-row audio { max-width: 100%; order: 1; flex: 1 0 100%; }
-}
-
-#app-main-title,
-#app-sidebar-title {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0;
-  margin: 0;
-  padding: 0;
 }

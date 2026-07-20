@@ -1,34 +1,9 @@
 // Cliente Deezer vía JSONP (Deezer no permite CORS directo desde navegador).
-// Cachea respuestas en localStorage para que funcione offline lo ya visitado.
 var DeezerAPI = (function () {
   var BASE = 'https://api.deezer.com';
-  var CACHE_PREFIX = 'dz_cache_';
   var counter = 0;
 
-  function cacheGet(path) {
-    try {
-      var raw = localStorage.getItem(CACHE_PREFIX + path);
-      if (!raw) return null;
-      var obj = JSON.parse(raw);
-      return obj && obj.data ? obj : null;
-    } catch (e) { return null; }
-  }
-  function cacheSet(path, data) {
-    try {
-      localStorage.setItem(CACHE_PREFIX + path, JSON.stringify({ t: Date.now(), data: data }));
-    } catch (e) {
-      // Cuota llena: purga entradas de caché y reintenta una vez.
-      try {
-        for (var i = localStorage.length - 1; i >= 0; i--) {
-          var k = localStorage.key(i);
-          if (k && k.indexOf(CACHE_PREFIX) === 0) localStorage.removeItem(k);
-        }
-        localStorage.setItem(CACHE_PREFIX + path, JSON.stringify({ t: Date.now(), data: data }));
-      } catch (e2) {}
-    }
-  }
-
-  function jsonpRaw(path) {
+  function jsonp(path) {
     return new Promise(function (resolve, reject) {
       var cbName = '__dz_cb_' + (++counter) + '_' + Date.now();
       var sep = path.indexOf('?') >= 0 ? '&' : '?';
@@ -52,22 +27,6 @@ var DeezerAPI = (function () {
       script.onerror = function () { cleanup(); reject(new Error('Fallo al cargar recurso')); };
       script.src = url;
       document.head.appendChild(script);
-    });
-  }
-
-  // Si estamos offline -> cache. Si online -> red y guardar; ante fallo -> cache.
-  function jsonp(path) {
-    var cached = cacheGet(path);
-    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
-      if (cached) return Promise.resolve(cached.data);
-      return Promise.reject(new Error('Sin conexión y sin datos en caché'));
-    }
-    return jsonpRaw(path).then(function (data) {
-      cacheSet(path, data);
-      return data;
-    }).catch(function (err) {
-      if (cached) return cached.data;
-      throw err;
     });
   }
 
