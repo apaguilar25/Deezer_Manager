@@ -560,3 +560,13 @@ code {
   .track-row { flex-wrap: wrap; }
   .track-row audio { max-width: 100%; order: 1; flex: 1 0 100%; }
 }
+
+/* Control exacto del espaciado del título principal y del menú lateral */
+#app-main-title,
+#app-sidebar-title {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0; /* Asegura que internamente las palabras nunca se separen */
+  margin: 0;
+  padding: 0;
+}
