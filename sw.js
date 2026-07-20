@@ -1,7 +1,5 @@
-// Service worker mínimo: cachea el shell para permitir carga offline de la UI.
-// Las rutas se calculan a partir del scope del propio SW, así funciona
-// tanto en / (preview) como en /reponame/ (GitHub Pages) sin cambios.
-var CACHE = 'dm-shell-v3';
+// Service worker: cachea el shell y los archivos multimedia (audios/imágenes).
+var CACHE = 'dm-shell-v4'; // <-- VERSIÓN ACTUALIZADA (v4)
 var BASE = new URL('./', self.registration.scope).href;
 var REL_ASSETS = [
   'login.html',
@@ -51,17 +49,26 @@ self.addEventListener('activate', function (e) {
 
 self.addEventListener('fetch', function (e) {
   var url = new URL(e.request.url);
-  if (url.origin !== location.origin) return; // no interceptar Deezer/JSONP
+  
+  // 1. Ignorar explícitamente la API de Deezer para no romper tus búsquedas JSONP
+  if (url.hostname === 'api.deezer.com') return; 
+  
+  // 2. Ignorar cualquier petición que no sea de lectura (solo permitimos GET)
   if (e.request.method !== 'GET') return;
+  
   e.respondWith(
     caches.match(e.request).then(function (cached) {
       var fetchPromise = fetch(e.request).then(function (resp) {
-        if (resp && resp.status === 200) {
+        // 3. Cacheamos status 200 (tus HTML/CSS) y 'opaque' (Audios e imágenes de CDNs externos)
+        if (resp && (resp.status === 200 || resp.type === 'opaque')) {
           var copy = resp.clone();
           caches.open(CACHE).then(function (c) { c.put(e.request, copy); });
         }
         return resp;
-      }).catch(function () { return cached; });
+      }).catch(function () { 
+        return cached; 
+      });
+      
       return cached || fetchPromise;
     })
   );

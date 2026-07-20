@@ -17,7 +17,7 @@ var Store = (function () {
   function saveFavorite(album) {
     var favs = getFavorites();
     favs[album.id] = {
-      id: album.id, title: album.title, cover: album.cover, artist: album.artist,
+      id: album.id, title: album.title, cover: album.cover, artist: album.artist,tracks: album.tracks || [], 
       savedAt: Date.now()
     };
     write(FAV_KEY, favs);

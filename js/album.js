@@ -7,17 +7,19 @@ document.addEventListener('DOMContentLoaded', function () {
   var from = qs.get('from') || 'home';
 
   var back = document.getElementById('backBtn');
-  back.innerHTML = Icons.arrowLeft('icon icon-sm') + ' Volver';
-  back.addEventListener('click', function (e) {
-    e.preventDefault();
-    if (from === 'artist' && artistId) {
-      window.location.href = './artist.html?id=' + encodeURIComponent(artistId);
-    } else if (from === 'favorites') {
-      window.location.href = './favorites.html';
-    } else {
-      window.location.href = './home.html';
-    }
-  });
+  if (back) {
+    back.innerHTML = Icons.arrowLeft('icon icon-sm') + ' Volver';
+    back.addEventListener('click', function (e) {
+      e.preventDefault();
+      if (from === 'artist' && artistId) {
+        window.location.href = './artist.html?id=' + encodeURIComponent(artistId);
+      } else if (from === 'favorites') {
+        window.location.href = './favorites.html';
+      } else {
+        window.location.href = './home.html';
+      }
+    });
+  }
 
   var banner = document.getElementById('albumBanner');
   var status = document.getElementById('albumStatus');
@@ -25,15 +27,43 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (!id) { status.textContent = 'Álbum no especificado.'; return; }
 
-  DeezerAPI.album(id).then(function (al) {
+  // =========================================================================
+  // 1. MODO OFFLINE / ONLINE
+  // =========================================================================
+  if (!navigator.onLine) {
+    var favs = Store.getFavorites();
+    var albumLocal = favs[id];
+
+    if (!albumLocal) {
+      status.textContent = 'Estás sin conexión y este álbum no está guardado.';
+      return;
+    }
+    // Renderizamos usando la memoria local
+    renderizarAlbum(albumLocal, true);
+  } else {
+    // Renderizamos pidiendo datos a la API de Deezer
+    DeezerAPI.album(id).then(function (al) {
+      renderizarAlbum(al, false);
+    }).catch(function (err) {
+      status.textContent = 'Error: ' + err.message;
+    });
+  }
+
+  // =========================================================================
+  // 2. FUNCIÓN CENTRAL (Sirve tanto para datos de API como Locales)
+  // =========================================================================
+  function renderizarAlbum(al, isOffline) {
     document.title = al.title + ' · Deezer.Music';
+    
     var aId = artistId || (al.artist && al.artist.id) || '';
-    var aName = artistName || (al.artist && al.artist.name) || '';
+    var aName = artistName || (al.artist && al.artist.name) || al.artist || '';
+    var coverImg = al.cover_xl || al.cover_big || al.cover_medium || al.cover || '';
+    
     var isFav = Store.isFavorite(String(al.id));
     var rating = Store.getRating(String(al.id));
 
     banner.innerHTML =
-      '<img src="' + (al.cover_xl || al.cover_big || al.cover_medium || '') + '" alt="' + esc(al.title) + '" />' +
+      '<img src="' + coverImg + '" alt="' + esc(al.title) + '" />' +
       '<div class="banner-info">' +
         '<h1>' + esc(al.title) + '</h1>' +
         '<p>' + esc(aName) + (al.release_date ? ' · ' + al.release_date : '') + (al.nb_tracks ? ' · ' + al.nb_tracks + ' pistas' : '') + '</p>' +
@@ -45,49 +75,60 @@ document.addEventListener('DOMContentLoaded', function () {
         '</div>' +
       '</div>';
 
+    // === BOTÓN FAVORITO CORREGIDO ===
     var fav = document.getElementById('albumFavBtn');
     fav.addEventListener('click', function () {
-      var album = {
-        id: String(al.id), title: al.title,
-        cover: al.cover_medium || al.cover,
-        artist: { id: aId, name: aName }
+      var albumParaGuardar = {
+        id: String(al.id), 
+        title: al.title,
+        cover: coverImg,
+        artist: { id: aId, name: aName },
+        // AHORA SÍ GUARDAMOS LAS CANCIONES SEGÚN DE DÓNDE VENGAN
+        tracks: isOffline ? al.tracks : ((al.tracks && al.tracks.data) || [])
       };
-      if (Store.isFavorite(album.id)) {
-        Store.removeFavorite(album.id);
+      
+      if (Store.isFavorite(albumParaGuardar.id)) {
+        Store.removeFavorite(albumParaGuardar.id);
         fav.classList.remove('on');
         fav.innerHTML = Icons.heart('icon icon-sm');
       } else {
-        Store.saveFavorite(album);
+        Store.saveFavorite(albumParaGuardar);
         fav.classList.add('on');
         fav.innerHTML = Icons.heartOn('icon icon-sm');
       }
     });
+    
     bindStars(al.id);
 
-    var tracks = (al.tracks && al.tracks.data) || [];
+    // === RENDERIZAR LISTA DE CANCIONES ===
+    var tracks = isOffline ? (al.tracks || []) : ((al.tracks && al.tracks.data) || []);
     if (!tracks.length) {
       status.textContent = 'Sin canciones disponibles.';
       return;
     }
+    
     status.textContent = tracks.length + ' canción(es).';
     trackList.innerHTML = '';
-    tracks.forEach(function (t, i) { trackList.appendChild(trackRow(t, i, al)); });
-  }).catch(function (err) {
-    status.textContent = 'Error: ' + err.message;
-  });
+    tracks.forEach(function (t, i) { 
+      trackList.appendChild(trackRow(t, i, coverImg)); 
+    });
+  }
 
-  function trackRow(t, i, al) {
+  // =========================================================================
+  // 3. FUNCIONES UTILITARIAS (Sin cambios)
+  // =========================================================================
+  function trackRow(t, i, coverImg) {
     var row = document.createElement('div');
     row.className = 'track-row';
     row.innerHTML =
       '<span class="track-idx">' + (i + 1) + '</span>' +
-      '<img src="' + (al.cover_small || al.cover_medium || al.cover || '') + '" alt="" />' +
+      '<img src="' + coverImg + '" alt="" />' +
       '<div class="track-info">' +
         '<div class="track-title">' + esc(t.title) + '</div>' +
         '<div class="track-sub">' + fmtDur(t.duration) + '</div>' +
       '</div>' +
       (t.preview
-        ? '<audio controls preload="none" src="' + t.preview + '"></audio>'
+        ? '<audio controls preload="auto" src="' + t.preview + '"></audio>'
         : '<span class="muted">Sin preview</span>');
     return row;
   }
