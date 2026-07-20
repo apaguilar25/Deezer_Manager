@@ -14,7 +14,6 @@
 // Registrar el Service Worker
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function () {
-    // Asegúrate de que la ruta apunte correctamente al archivo sw.js en tu raíz
     navigator.serviceWorker.register('./sw.js')
       .then(function (registration) {
         console.log('[Service Worker] Registrado correctamente con alcance:', registration.scope);
