@@ -116,7 +116,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // =========================================================================
   // 3. FUNCIONES UTILITARIAS (Sin cambios)
-  // =========================================================================asdsada
+  // =====================================================asd====================
   function trackRow(t, i, coverImg) {
     var row = document.createElement('div');
     row.className = 'track-row';
