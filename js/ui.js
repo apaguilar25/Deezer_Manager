@@ -26,7 +26,7 @@ var UI = (function () {
 
     var wrap = el('aside', 'sidebar');
     wrap.innerHTML =
-      '<div class="sb-brand">' + Icons.logo('icon') + '<span>DEEZER<span class="brand-accent">.MUSIC</span></span></div>' +
+      '<div class="sb-brand">' + Icons.logo('icon') + '<span id="app-sidebar-title">DEEZER<span class="brand-accent">.MUSIC</span></span></div>' +
       links +
       '<div class="sb-foot">v1 · Neon Edition</div>';
 
@@ -106,7 +106,8 @@ var UI = (function () {
     menuBtn.addEventListener('click', toggle);
     left.appendChild(menuBtn);
 
-    var brand = el('h1', 'brand', Icons.logo('icon') + 'DEEZER<span class="brand-accent">.MUSIC</span>');
+    var brand = el('h1', 'brand', Icons.logo('icon') + '<span  id="app-main-title">DEEZER<span class="brand-accent">.MUSIC</span></span>');
+    
     left.appendChild(brand);
 
     var prof = buildProfile();

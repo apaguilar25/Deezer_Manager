@@ -56,7 +56,7 @@ var CURATED_ALBUMS = [
 
 document.addEventListener('DOMContentLoaded', function () {
 
-  // ---- Buscador embebido en el home: al escribir, va a la búsqueda en vivo ----
+  // ---- Buscador embebido (funciona igual) ----
   var searchForm = document.getElementById('homeSearchForm');
   var homeInput = document.getElementById('homeSearchInput');
   if (searchForm) {
@@ -70,7 +70,6 @@ document.addEventListener('DOMContentLoaded', function () {
     var si = document.getElementById('homeSearchIcon');
     if (si) si.innerHTML = Icons.search('icon icon-sm');
 
-    // Redirige a la página de búsqueda con la primera letra.
     homeInput.addEventListener('input', function () {
       var v = homeInput.value;
       if (v && v.length >= 1) {
@@ -79,124 +78,179 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // ---- 1) Marquee de tendencias (solo curados) ----
-  var trending = document.getElementById('trendingMarquee');
-  Promise.all(CURATED_ARTISTS.map(function (name) {
-    return DeezerAPI.searchArtists(name).then(function (d) {
-      var list = (d && d.data) || [];
-      // Preferir match exacto por nombre.
-      var lc = name.toLowerCase();
-      var exact = list.filter(function (a) { return a && a.name && a.name.toLowerCase() === lc; })[0];
-      return exact || list[0] || null;
-    }).catch(function () { return null; });
-  })).then(function (arr) {
-    var seen = {};
-    var pool = arr.filter(function (a) {
-      if (!a || !a.id) return false;
-      if (inBlacklist(a.name)) return false;
-      if (!(a.picture_medium || a.picture)) return false;
-      if (seen[a.id]) return false;
-      seen[a.id] = true;
-      return true;
-    });
+  // =========================================================================
+  // MODO OFFLINE / ONLINE
+  // =========================================================================
+  if (!navigator.onLine) {
+    cargarModoOffline();
+    return; 
+  }
 
-    if (!pool.length) {
-      trending.innerHTML = '<div class="empty">Sin tendencias por ahora.</div>';
+  cargarModoOnline();
+
+  // -------------------------------------------------------------------------
+  // Función para vista Offline
+  // -------------------------------------------------------------------------
+  function cargarModoOffline() {
+    var trending = document.getElementById('trendingMarquee');
+    var albumsGrid = document.getElementById('albumsGrid');
+    var artistsGrid = document.getElementById('artistsGrid');
+    var relatedGrid = document.getElementById('relatedGrid');
+    var relatedEmpty = document.getElementById('relatedEmpty');
+
+    if (trending) trending.innerHTML = '<div class="empty">Tendencias no disponibles sin conexión.</div>';
+    if (artistsGrid) artistsGrid.innerHTML = '<div class="empty">Artistas destacados no disponibles offline.</div>';
+    if (relatedGrid) relatedGrid.innerHTML = '';
+    if (relatedEmpty) relatedEmpty.hidden = false;
+    
+    var titleRel = document.getElementById('relatedTitle');
+    if (titleRel) titleRel.textContent = 'Modo Sin Conexión';
+
+    var favs = Store.getFavorites(); 
+    var favKeys = Object.keys(favs);
+
+    if (favKeys.length === 0) {
+      if (albumsGrid) albumsGrid.innerHTML = '<div class="empty">No tienes álbumes guardados para escuchar sin conexión.</div>';
       return;
     }
 
-    var track = document.createElement('div');
-    track.className = 'marquee-track';
-    pool.forEach(function (a) { track.appendChild(artistCard(a)); });
-    pool.forEach(function (a) { track.appendChild(artistCard(a)); });
-    trending.innerHTML = '';
-    trending.appendChild(track);
-    var dur = Math.max(30, Math.round(track.scrollWidth / 80));
-    track.style.animationDuration = dur + 's';
-  }).catch(function (err) {
-    trending.innerHTML = '<div class="empty">No se pudieron cargar tendencias: ' + esc(err.message) + '</div>';
-  });
+    if (albumsGrid) {
+      albumsGrid.innerHTML = '';
+      favKeys.forEach(function (key) {
+        var al = favs[key];
+        var card = document.createElement('a');
+        card.className = 'card';
+        card.href = './album.html?id=' + encodeURIComponent(al.id) + '&from=home';
+        card.innerHTML =
+          '<img src="' + esc(al.cover || '') + '" alt="' + esc(al.title) + '" />' +
+          '<div class="card-body">' +
+            '<h3>' + esc(al.title) + '</h3>' +
+            '<p>' + esc((al.artist && al.artist.name) || al.artist || 'Álbum Guardado') + '</p>' +
+          '</div>';
+        albumsGrid.appendChild(card);
+      });
+    }
+  }
 
-  // ---- 2) Álbumes recomendados (curados) ----
-  var albumsGrid = document.getElementById('albumsGrid');
-  Promise.all(CURATED_ALBUMS.map(function (spec) {
-    var q = spec.artist + ' ' + spec.title;
-    return DeezerAPI.searchAlbums(q).then(function (d) {
-      var list = (d && d.data) || [];
-      var normArtist = spec.artist.toLowerCase();
-      var pick = list.filter(function (al) {
-        if (!al.artist || inBlacklist(al.artist.name)) return false;
-        return al.artist.name.toLowerCase().indexOf(normArtist) >= 0
-            || normArtist.indexOf(al.artist.name.toLowerCase()) >= 0;
-      })[0] || list[0];
-      return pick || null;
-    }).catch(function () { return null; });
-  })).then(function (albums) {
-    albumsGrid.innerHTML = '';
-    var uniq = {};
-    var final = albums.filter(function (al) {
-      if (!al || !al.id) return false;
-      if (al.artist && inBlacklist(al.artist.name)) return false;
-      if (!(al.cover_medium || al.cover)) return false;
-      if (uniq[al.id]) return false;
-      uniq[al.id] = true;
-      return true;
+  // -------------------------------------------------------------------------
+  // Función Original de API (Carga Online)
+  // -------------------------------------------------------------------------
+  function cargarModoOnline() {
+    // ---- 1) Marquee de tendencias ----
+    var trending = document.getElementById('trendingMarquee');
+    Promise.all(CURATED_ARTISTS.map(function (name) {
+      return DeezerAPI.searchArtists(name).then(function (d) {
+        var list = (d && d.data) || [];
+        var lc = name.toLowerCase();
+        var exact = list.filter(function (a) { return a && a.name && a.name.toLowerCase() === lc; })[0];
+        return exact || list[0] || null;
+      }).catch(function () { return null; });
+    })).then(function (arr) {
+      var seen = {};
+      var pool = arr.filter(function (a) {
+        if (!a || !a.id) return false;
+        if (inBlacklist(a.name)) return false;
+        if (!(a.picture_medium || a.picture)) return false;
+        if (seen[a.id]) return false;
+        seen[a.id] = true;
+        return true;
+      });
+
+      if (!pool.length) {
+        trending.innerHTML = '<div class="empty">Sin tendencias por ahora.</div>';
+        return;
+      }
+
+      var track = document.createElement('div');
+      track.className = 'marquee-track';
+      pool.forEach(function (a) { track.appendChild(artistCard(a)); });
+      pool.forEach(function (a) { track.appendChild(artistCard(a)); });
+      trending.innerHTML = '';
+      trending.appendChild(track);
+      var dur = Math.max(30, Math.round(track.scrollWidth / 80));
+      track.style.animationDuration = dur + 's';
+    }).catch(function (err) {
+      trending.innerHTML = '<div class="empty">No se pudieron cargar tendencias: ' + esc(err.message) + '</div>';
     });
-    if (!final.length) { albumsGrid.innerHTML = '<div class="empty">Sin álbumes disponibles.</div>'; return; }
-    final.forEach(function (al) { albumsGrid.appendChild(albumCard(al)); });
-  });
 
-  // ---- 3) Artistas destacados ----
-  var artistsGrid = document.getElementById('artistsGrid');
-  Promise.all(FEATURED_ARTISTS.map(function (n) {
-    return DeezerAPI.searchArtists(n).then(function (d) {
-      var list = (d && d.data) || [];
-      var lc = n.toLowerCase();
-      var exact = list.filter(function (a) { return a && a.name && a.name.toLowerCase() === lc; })[0];
-      return exact || list[0] || null;
-    }).catch(function () { return null; });
-  })).then(function (arr) {
-    artistsGrid.innerHTML = '';
-    var items = arr.filter(function (a) {
-      return a && !inBlacklist(a.name) && (a.picture_medium || a.picture);
+    // ---- 2) Álbumes recomendados ----
+    var albumsGrid = document.getElementById('albumsGrid');
+    Promise.all(CURATED_ALBUMS.map(function (spec) {
+      var q = spec.artist + ' ' + spec.title;
+      return DeezerAPI.searchAlbums(q).then(function (d) {
+        var list = (d && d.data) || [];
+        var normArtist = spec.artist.toLowerCase();
+        var pick = list.filter(function (al) {
+          if (!al.artist || inBlacklist(al.artist.name)) return false;
+          return al.artist.name.toLowerCase().indexOf(normArtist) >= 0
+              || normArtist.indexOf(al.artist.name.toLowerCase()) >= 0;
+        })[0] || list[0];
+        return pick || null;
+      }).catch(function () { return null; });
+    })).then(function (albums) {
+      albumsGrid.innerHTML = '';
+      var uniq = {};
+      var final = albums.filter(function (al) {
+        if (!al || !al.id) return false;
+        if (al.artist && inBlacklist(al.artist.name)) return false;
+        if (!(al.cover_medium || al.cover)) return false;
+        if (uniq[al.id]) return false;
+        uniq[al.id] = true;
+        return true;
+      });
+      if (!final.length) { albumsGrid.innerHTML = '<div class="empty">Sin álbumes disponibles.</div>'; return; }
+      final.forEach(function (al) { albumsGrid.appendChild(albumCard(al)); });
     });
-    if (!items.length) { artistsGrid.innerHTML = '<div class="empty">Sin artistas disponibles.</div>'; return; }
-    items.forEach(function (a) { artistsGrid.appendChild(artistCard(a)); });
-  });
 
-  // ---- 4) Relacionado con tus búsquedas (variedad) ----
-  var relatedGrid = document.getElementById('relatedGrid');
-  var relatedEmpty = document.getElementById('relatedEmpty');
-  var history = Store.getSearchHistory();
-  if (!history.length) {
-    relatedEmpty.hidden = false;
-  } else {
-    var top = history[0];
-    document.getElementById('relatedTitle').textContent = 'Basado en "' + top + '"';
-    // Buscamos el artista principal y traemos sus artistas relacionados para dar variedad.
-    DeezerAPI.searchArtists(top).then(function (data) {
-      var first = (data && data.data && data.data[0]) || null;
-      if (!first) { relatedEmpty.hidden = false; return; }
-      return DeezerAPI.artistRelated(first.id).then(function (rel) {
-        var items = ((rel && rel.data) || []).filter(function (a) {
-          return a && (a.picture_medium || a.picture) && !inBlacklist(a.name);
-        });
-        // Si no hay related, cae a otras búsquedas variadas.
-        if (!items.length) {
-          var extra = ((data.data) || []).slice(1, 9).filter(function (a) {
+    // ---- 3) Artistas destacados ----
+    var artistsGrid = document.getElementById('artistsGrid');
+    Promise.all(FEATURED_ARTISTS.map(function (n) {
+      return DeezerAPI.searchArtists(n).then(function (d) {
+        var list = (d && d.data) || [];
+        var lc = n.toLowerCase();
+        var exact = list.filter(function (a) { return a && a.name && a.name.toLowerCase() === lc; })[0];
+        return exact || list[0] || null;
+      }).catch(function () { return null; });
+    })).then(function (arr) {
+      artistsGrid.innerHTML = '';
+      var items = arr.filter(function (a) {
+        return a && !inBlacklist(a.name) && (a.picture_medium || a.picture);
+      });
+      if (!items.length) { artistsGrid.innerHTML = '<div class="empty">Sin artistas disponibles.</div>'; return; }
+      items.forEach(function (a) { artistsGrid.appendChild(artistCard(a)); });
+    });
+
+    // ---- 4) Relacionado con tus búsquedas ----
+    var relatedGrid = document.getElementById('relatedGrid');
+    var relatedEmpty = document.getElementById('relatedEmpty');
+    var history = Store.getSearchHistory();
+    if (!history.length) {
+      relatedEmpty.hidden = false;
+    } else {
+      var top = history[0];
+      document.getElementById('relatedTitle').textContent = 'Basado en "' + top + '"';
+      DeezerAPI.searchArtists(top).then(function (data) {
+        var first = (data && data.data && data.data[0]) || null;
+        if (!first) { relatedEmpty.hidden = false; return; }
+        return DeezerAPI.artistRelated(first.id).then(function (rel) {
+          var items = ((rel && rel.data) || []).filter(function (a) {
             return a && (a.picture_medium || a.picture) && !inBlacklist(a.name);
           });
-          items = extra;
-        }
-        // Mezclamos para no mostrar siempre el mismo orden.
-        items.sort(function () { return Math.random() - 0.5; });
-        items = items.slice(0, 8);
-        if (!items.length) { relatedEmpty.hidden = false; return; }
-        items.forEach(function (a) { relatedGrid.appendChild(artistCard(a)); });
+          if (!items.length) {
+            var extra = ((data.data) || []).slice(1, 9).filter(function (a) {
+              return a && (a.picture_medium || a.picture) && !inBlacklist(a.name);
+            });
+            items = extra;
+          }
+          items.sort(function () { return Math.random() - 0.5; });
+          items = items.slice(0, 8);
+          if (!items.length) { relatedEmpty.hidden = false; return; }
+          items.forEach(function (a) { relatedGrid.appendChild(artistCard(a)); });
+        });
+      }).catch(function (err) {
+        relatedGrid.innerHTML = '<div class="empty">Error: ' + esc(err.message) + '</div>';
       });
-    }).catch(function (err) {
-      relatedGrid.innerHTML = '<div class="empty">Error: ' + esc(err.message) + '</div>';
-    });
+    }
   }
 
   function artistCard(a) {
@@ -211,6 +265,7 @@ document.addEventListener('DOMContentLoaded', function () {
       '</div>';
     return card;
   }
+  
   function albumCard(al) {
     var card = document.createElement('a');
     card.className = 'card';

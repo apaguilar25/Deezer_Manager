@@ -62,6 +62,20 @@ document.addEventListener('DOMContentLoaded', function () {
     var isFav = Store.isFavorite(String(al.id));
     var rating = Store.getRating(String(al.id));
 
+    var tracks = isOffline ? (al.tracks || []) : ((al.tracks && al.tracks.data) || []);
+
+    // AUTO-ACTUALIZACIÓN SILENCIOSA:
+    // Si estamos ONLINE y este álbum es favorito, guardamos las canciones automáticamente en LocalStorage
+    if (!isOffline && isFav && tracks.length > 0) {
+      Store.saveFavorite({
+        id: String(al.id), 
+        title: al.title,
+        cover: coverImg,
+        artist: { id: aId, name: aName },
+        tracks: tracks
+      });
+    }
+
     banner.innerHTML =
       '<img src="' + coverImg + '" alt="' + esc(al.title) + '" />' +
       '<div class="banner-info">' +
@@ -75,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function () {
         '</div>' +
       '</div>';
 
-    // === BOTÓN FAVORITO CORREGIDO ===
+    // === BOTÓN FAVORITO ===
     var fav = document.getElementById('albumFavBtn');
     fav.addEventListener('click', function () {
       var albumParaGuardar = {
@@ -83,8 +97,7 @@ document.addEventListener('DOMContentLoaded', function () {
         title: al.title,
         cover: coverImg,
         artist: { id: aId, name: aName },
-        // AHORA SÍ GUARDAMOS LAS CANCIONES SEGÚN DE DÓNDE VENGAN
-        tracks: isOffline ? al.tracks : ((al.tracks && al.tracks.data) || [])
+        tracks: tracks
       };
       
       if (Store.isFavorite(albumParaGuardar.id)) {
@@ -101,7 +114,6 @@ document.addEventListener('DOMContentLoaded', function () {
     bindStars(al.id);
 
     // === RENDERIZAR LISTA DE CANCIONES ===
-    var tracks = isOffline ? (al.tracks || []) : ((al.tracks && al.tracks.data) || []);
     if (!tracks.length) {
       status.textContent = 'Sin canciones disponibles.';
       return;
@@ -115,8 +127,8 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // =========================================================================
-  // 3. FUNCIONES UTILITARIAS (Sin cambios)
-  // =====================================================asd====================
+  // 3. FUNCIONES UTILITARIAS
+  // =========================================================================
   function trackRow(t, i, coverImg) {
     var row = document.createElement('div');
     row.className = 'track-row';
